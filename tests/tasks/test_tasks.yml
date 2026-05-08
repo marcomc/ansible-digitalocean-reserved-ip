@@ -1,0 +1,30 @@
+---
+- name: Retrive the list of existing Reserved IPs
+  ansible.builtin.import_role:
+    name: inviqa_digitalocean_reserved_ip
+    tasks_from: list_reserved_ips
+
+- name: Store the Reserved IP assigned to this droplet
+  ansible.builtin.set_fact:
+    do_reserved_ips_assigned_to_this_droplet: "{{ item.ip }}"
+  loop: "{{ do_reserved_ips_json_response.json.floating_ips }}"
+  when: item.droplet.name == hostname
+  delegate_to: localhost
+  no_log: true
+
+- ansible.builtin.debug:
+    var: do_reserved_ips_assigned_to_this_droplet
+
+- name: Check that the role exposed the Reserved IP fact
+  ansible.builtin.assert:
+    that:
+      - do_droplet_reserved_ip_address is defined
+    msg: "The role did not expose the assigned Reserved IP address"
+  delegate_to: localhost
+
+- name: Check that the droplet has been assigned with a Reserved IP
+  ansible.builtin.assert:
+    that:
+      - "do_reserved_ips_assigned_to_this_droplet is defined"
+    msg: "This droplet wasn't associated to any Reserved IP"
+  delegate_to: localhost

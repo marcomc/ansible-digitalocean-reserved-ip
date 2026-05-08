@@ -1,0 +1,4 @@
+.ansible/
+tests/.vagrant
+!.gitignore
+.vault_password

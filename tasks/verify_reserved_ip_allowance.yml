@@ -1,0 +1,43 @@
+---
+- name: Retrieve the account allowance for Reserved IP creation
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/account"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    method: GET
+    follow_redirects: all
+    return_content: true
+    timeout: 60
+  delegate_to: localhost
+  register: do_account_json_response
+  run_once: true
+
+- name: Store the Reserved IP allowance for the account
+  ansible.builtin.set_fact:
+    do_account_reserved_ip_limit: "{{ do_account_json_response.json.account.floating_ip_limit }}"
+  run_once: true
+
+- name: Retrieve the number of Reserved IPs already in use
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/floating_ips?page=1&per_page=20"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    method: GET
+    follow_redirects: all
+    return_content: true
+    timeout: 60
+  delegate_to: localhost
+  register: do_reserved_ips_json_response
+
+- name: Store the number of Reserved IPs already in use
+  ansible.builtin.set_fact:
+    do_account_reserved_ip_used: "{{ do_reserved_ips_json_response.json.meta.total }}"
+
+- name: Fail when the account Reserved IP allowance is exhausted
+  ansible.builtin.fail:
+    msg: "You have reached the limit of your Reserved IP allowance using {{ do_account_reserved_ip_used }} out of {{ do_account_reserved_ip_limit }}"
+  when: do_account_reserved_ip_used == do_account_reserved_ip_limit

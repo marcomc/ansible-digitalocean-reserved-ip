@@ -1,0 +1,47 @@
+---
+
+- name: Verify whether a Reserved IP is already assigned to the droplet
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_metadata_reserved_ip_active_url }}"
+    body_format: raw
+    method: GET
+    follow_redirects: all
+    return_content: true
+    status_code:
+      - 200
+      - -1
+    timeout: 60
+  register: do_reserved_ip_is_already_assigned_to_this_droplet
+  retries: 3
+  failed_when: false
+
+- name: Store whether Reserved IP metadata reports an assigned address
+  ansible.builtin.set_fact:
+    reserved_ip_is_already_assigned_to_this_droplet: "{{ do_reserved_ip_is_already_assigned_to_this_droplet.content | bool }}"
+    reserved_ip_is_assigned_to_this_droplet: "{{ do_reserved_ip_is_already_assigned_to_this_droplet.content | bool }}"
+
+- name: Retrieve the Reserved IP assigned to the droplet
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_metadata_reserved_ip_address_url }}"
+    body_format: raw
+    method: GET
+    follow_redirects: all
+    return_content: true
+    status_code:
+      - 200
+      - -1
+    timeout: 60
+  register: reserved_ip_assigned_to_this_droplet_address
+  when: reserved_ip_is_already_assigned_to_this_droplet
+  retries: 3
+  failed_when: false
+
+- name: Store the Reserved IP reported by metadata
+  ansible.builtin.set_fact:
+    do_droplet_reserved_ip_address: "{{ reserved_ip_assigned_to_this_droplet_address.content }}"
+  when: reserved_ip_is_already_assigned_to_this_droplet
+
+- name: Report the existing Reserved IP already attached to the droplet
+  ansible.builtin.debug:
+    msg: "The Reserved IP {{ do_droplet_reserved_ip_address }} was already assigned to droplet {{ digital_ocean_droplet_id }}"
+  when: reserved_ip_is_already_assigned_to_this_droplet and do_droplet_reserved_ip_address is defined

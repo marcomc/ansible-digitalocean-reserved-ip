@@ -1,0 +1,84 @@
+---
+- name: Check if the requested Reserved IP exists
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    method: GET
+    status_code:
+      - 200
+    follow_redirects: all
+    return_content: true
+    timeout: 60
+  delegate_to: localhost
+  register: do_reserved_ip_json_response
+
+- name: Initialize Reserved IP assignment facts
+  ansible.builtin.set_fact:
+    reserved_ip_is_assigned: "{{ do_reserved_ip_json_response.json.floating_ip.droplet is not none }}"
+    droplet_id_associated_to_reserved_ip: ""
+    reserved_ip_is_assigned_to_this_droplet: false
+    can_retrieve_anchor_ip_associated_to_this_droplet: false
+    can_retrieve_anchor_gateway_associated_to_this_droplet: false
+
+- name: Store the droplet currently associated with the Reserved IP
+  ansible.builtin.set_fact:
+    droplet_id_associated_to_reserved_ip: "{{ do_reserved_ip_json_response.json.floating_ip.droplet.id }}"
+  when: reserved_ip_is_assigned
+
+- name: Mark the Reserved IP as already attached to this droplet
+  ansible.builtin.set_fact:
+    reserved_ip_is_assigned_to_this_droplet: true
+  when: droplet_id_associated_to_reserved_ip == digital_ocean_droplet_id
+
+- name: Unassign the Reserved IP from any other droplet
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    body:
+      type: 'unassign'
+    method: POST
+    follow_redirects: all
+    return_content: true
+    status_code:
+      - 200
+      - 201
+    timeout: 60
+  delegate_to: localhost
+  register: do_reserved_ip_unassign_action_json_response
+  when: reserved_ip_is_assigned and not reserved_ip_is_assigned_to_this_droplet
+
+- name: Give DigitalOcean time to process the unassign request
+  ansible.builtin.pause:
+    seconds: 3
+
+- name: Assign the Reserved IP to the requested droplet
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    body:
+      type: 'assign'
+      droplet_id: "{{ digital_ocean_droplet_id }}"
+    method: POST
+    follow_redirects: all
+    return_content: true
+    status_code:
+      - 200
+      - 201
+    timeout: 60
+  delegate_to: localhost
+  register: do_reserved_ip_assign_action_json_response
+  when: not reserved_ip_is_assigned_to_this_droplet
+
+- name: Mark the Reserved IP as attached after assignment
+  ansible.builtin.set_fact:
+    reserved_ip_is_assigned_to_this_droplet: true
+  when: not reserved_ip_is_assigned_to_this_droplet

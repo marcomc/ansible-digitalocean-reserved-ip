@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  author: "Marco Massari Calderone <marco@marcomc.com>"
+  namespace: "inviqa"
+  role_name: "digitalocean_reserved_ip"
+  description: "Manage a DigitalOcean Reserved IP for an existing droplet"
+  company: "Inviqa UK Ltd"
+  license: MIT
+  min_ansible_version: "2.13"
+  platforms:
+    - name: EL
+      versions:
+        - "8"
+        - "9"
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
+  galaxy_tags:
+    - digitalocean
+    - networking
+    - reservedip
+    - infrastructure
+
+dependencies: []

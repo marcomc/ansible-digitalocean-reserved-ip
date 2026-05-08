@@ -1,0 +1,4 @@
+---
+enc_do_v2_api_key: "{{ lookup('env', 'DIGITAL_OCEAN_API_TOKEN') }}"
+hostname: "{{ inventory_hostname }}-test-with-ansible"
+do_test_tag: "ANSIBLE-TEST"

@@ -1,0 +1,42 @@
+---
+- name: Verify account allowance before creating a Reserved IP
+  ansible.builtin.import_tasks: verify_reserved_ip_allowance.yml
+
+- name: Verify whether a Reserved IP is already assigned to this droplet
+  ansible.builtin.import_tasks: retrieve_assigned_reserved_ip.yml
+
+- name: Create a new Reserved IP associated with the droplet
+  ansible.builtin.uri:
+    url: "{{ digital_ocean_api_base_url }}/floating_ips/"
+    headers:
+      Content-Type: 'application/json'
+      Authorization: "Bearer {{ digital_ocean_api_token }}"
+    body_format: json
+    body:
+      droplet_id: "{{ digital_ocean_droplet_id }}"
+    method: POST
+    follow_redirects: all
+    return_content: true
+    status_code:
+      - 200
+      - 201
+      - 202
+      - 422
+    timeout: 60
+  delegate_to: localhost
+  register: do_reserved_ip_create_new_json_response
+  when: not reserved_ip_is_already_assigned_to_this_droplet
+
+- name: Store the newly allocated Reserved IP facts
+  ansible.builtin.set_fact:
+    do_droplet_reserved_ip_address: "{{ do_reserved_ip_create_new_json_response.json.floating_ip.ip }}"
+  when: not reserved_ip_is_already_assigned_to_this_droplet and do_reserved_ip_create_new_json_response.status != 422
+
+- name: Report the newly assigned Reserved IP
+  ansible.builtin.debug:
+    msg: "The new Reserved IP {{ do_droplet_reserved_ip_address }} has been assigned to droplet {{ digital_ocean_droplet_id }}"
+  when: not reserved_ip_is_already_assigned_to_this_droplet and do_reserved_ip_create_new_json_response.status != 422
+
+- name: Mark the Reserved IP as attached after allocation
+  ansible.builtin.set_fact:
+    reserved_ip_is_assigned_to_this_droplet: true
