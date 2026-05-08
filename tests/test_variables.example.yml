@@ -1,0 +1,18 @@
+---
+# Copy this file to tests/test_variables.yml before running the integration
+# tests.
+# Get the available SSH key IDs and fingerprints with:
+# doctl compute ssh-key list --format ID,Name,FingerPrint
+
+# Optional local secret override. tests/test_variables.yml is gitignored, so it
+# can safely carry your local DigitalOcean token for this harness.
+# do_test_api_token: "dop_v1_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+do_test_api_token: "your_digitalocean_token_here"
+do_ssh_keys:
+  - "12345678"
+
+# Optional overrides:
+# do_region_id: "lon1"
+# do_size_id: "s-1vcpu-1gb"
+# do_test_tag: "ANSIBLE-TEST"
+# AWS credentials are not currently used by this test harness.

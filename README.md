@@ -129,6 +129,9 @@ If you install the published role under its current namespace, replace
 
 - `tests/` contains the copied integration harness and is being refreshed for
   the new role name.
+- `tests/README.md` contains the current live test workflow, including the
+  exact first-run command sequence for Debian-first validation, full-matrix
+  execution, and cleanup.
 - The repo is being prepared for Galaxy publication, so the metadata and
   documentation are intentionally kept explicit.
 

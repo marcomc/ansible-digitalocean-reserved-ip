@@ -1,5 +1,5 @@
 [debian]
-debian-stable do_image_id=debian-9-x64
+debian-13 do_image_id=debian-13-x64
 
-[digital-ocean:children]
+[digital_ocean:children]
 debian

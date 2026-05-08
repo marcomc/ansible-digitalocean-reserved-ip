@@ -1,33 +1,57 @@
 ---
-- name: Create new Droplet.
-  digital_ocean:
-    state: present
-    command: droplet
-    name: "{{ digital_ocean_name | mandatory }}"
-    backups_enabled: "{{ digital_ocean_backups_enabled | default('yes') }}"
-    private_networking: "{{ digital_ocean_private_networking | default('yes') }}"
-    api_token: "{{ digital_ocean_api_token | mandatory }}"
-    size_id: "{{ digital_ocean_size_id | mandatory }}"
-    image_id: "{{ digital_ocean_image_id | mandatory }}"
-    region_id: "{{ digital_ocean_region_id | mandatory }}"
-    ssh_key_ids: "{{ digital_ocean_ssh_key_ids | mandatory }}"
-    unique_name: "{{ digital_ocean_unique_name | default('yes') }}"
+- name: Ensure test SSH keys are configured
+  ansible.builtin.assert:
+    that:
+      - digital_ocean_ssh_keys | length > 0
+    fail_msg: >-
+      Set do_ssh_keys in tests/test_variables.yml to one or more
+      DigitalOcean SSH key fingerprints or IDs before running the test
+      harness.
   delegate_to: localhost
-  register: do
 
-- name: Set the IP to connect.
+- name: Create or reuse the test droplet
+  community.digitalocean.digital_ocean_droplet:
+    state: present
+    name: "{{ digital_ocean_name | mandatory }}"
+    backups: "{{ digital_ocean_backups_enabled | bool }}"
+    private_networking: "{{ digital_ocean_private_networking | bool }}"
+    oauth_token: "{{ digital_ocean_api_token | mandatory }}"
+    size: "{{ digital_ocean_size_id | mandatory }}"
+    image: "{{ digital_ocean_image_id | mandatory }}"
+    region: "{{ digital_ocean_region_id | mandatory }}"
+    ssh_keys: "{{ digital_ocean_ssh_keys | mandatory }}"
+    tags:
+      - "{{ do_test_tag }}"
+    unique_name: "{{ digital_ocean_unique_name | bool }}"
+    wait: true
+    wait_timeout: 600
+  delegate_to: localhost
+  register: do_create
+
+- name: Preserve the legacy droplet result shape for the test playbooks
+  ansible.builtin.set_fact:
+    do:
+      changed: "{{ do_create.changed }}"
+      droplet: "{{ do_create.data.droplet }}"
+  delegate_to: localhost
+
+- name: Set the public IP used for SSH
   ansible.builtin.set_fact:
     ansible_host: "{{ item.ip_address }}"
   delegate_to: localhost
-  with_items: "{{ do.droplet.networks.v4 }}"
+  loop: "{{ do.droplet.networks.v4 }}"
   when: item.type == 'public'
 
 - name: Wait for SSH to come up
   delegate_to: localhost
-  wait_for: host={{ ansible_host }} port=22 delay=15 timeout=320 state=started
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: 22
+    delay: 15
+    timeout: 320
+    state: started
 
 - name: Set whether the server has been freshly provisioned
   ansible.builtin.set_fact:
-    host_provisioned: do.changed
+    host_provisioned: "{{ do.changed }}"
   delegate_to: localhost
-  when: do.changed

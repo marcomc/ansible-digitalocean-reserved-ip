@@ -1,4 +1,10 @@
 ---
-enc_do_v2_api_key: "{{ lookup('env', 'DIGITAL_OCEAN_API_TOKEN') }}"
+ansible_python_interpreter: /usr/bin/python3
+do_test_api_token_from_env: >-
+  {{
+    lookup('env', 'DIGITAL_OCEAN_API_TOKEN')
+    | default(lookup('env', 'DO_OAUTH_TOKEN'), true)
+  }}
+enc_do_v2_api_key: "{{ do_test_api_token | default(do_test_api_token_from_env, true) }}"
 hostname: "{{ inventory_hostname }}-test-with-ansible"
 do_test_tag: "ANSIBLE-TEST"
