@@ -56,6 +56,10 @@ Required:
 - `ansible-lint <file>` or `ansible-lint .` when role-level context is more representative
 - `yamllint <file>`
 
+Agents must run `ansible-lint` every time an Ansible file is created or
+modified, including files under `tests/`, even if other repo-wide lint commands
+already pass.
+
 ### Markdown files
 
 Applies to:
@@ -80,23 +84,25 @@ Required:
 
 1. Lint after each meaningful change set and before final handoff.
 2. Do not skip linting because a change is "small".
-3. If a linter is unavailable, report it clearly and provide the exact install command.
-4. Prefer targeted linting for changed files, then run broader linting if needed.
-5. Fix lint errors introduced by the change.
-6. Lint issues must be resolved in code/content; do not silence, suppress, or
+3. Every newly created or modified Ansible file must be validated with
+   `ansible-lint` before finishing the task.
+4. If a linter is unavailable, report it clearly and provide the exact install command.
+5. Prefer targeted linting for changed files, then run broader linting if needed.
+6. Fix lint errors introduced by the change.
+7. Lint issues must be resolved in code/content; do not silence, suppress, or
    bypass rules unless an explicit, documented exception is approved.
-7. For shell scripts, always run `shellcheck --enable=all` and treat reported
+8. For shell scripts, always run `shellcheck --enable=all` and treat reported
    findings (including info-level checks) as actionable.
-8. Do not embed Python scripts/snippets inside Bash scripts or Bash command
+9. Do not embed Python scripts/snippets inside Bash scripts or Bash command
    strings. If the task is assigned to Bash, implement it in Bash.
-9. Shell automation must remain compatible with both macOS and Linux Bash.
+10. Shell automation must remain compatible with both macOS and Linux Bash.
    Avoid GNU-only flags or syntax and avoid adding dependencies on non-native
    shell tools unless the dependency is already an explicit, documented project
    requirement.
-10. Do not commit user-specific absolute filesystem paths (for example,
+11. Do not commit user-specific absolute filesystem paths (for example,
     home-directory paths from local machines). Use repository-relative paths,
     and use `~` only when a home-relative path is genuinely required.
-11. Do not hand-edit generated or vendored content under `.ansible/`; update the
+12. Do not hand-edit generated or vendored content under `.ansible/`; update the
     role source files in the repository root and regenerate or reinstall test
     dependencies when needed.
 

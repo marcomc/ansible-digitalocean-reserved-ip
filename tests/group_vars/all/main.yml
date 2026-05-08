@@ -1,5 +1,6 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
+ansible_user: root
 do_test_api_token_from_env: >-
   {{
     lookup('env', 'DIGITAL_OCEAN_API_TOKEN')

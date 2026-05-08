@@ -55,6 +55,20 @@ do_ssh_keys:
 Copy `test_variables.example.yml` to `test_variables.yml` and set at least one
 DigitalOcean SSH key fingerprint or numeric key ID in `do_ssh_keys`.
 
+The harness connects to newly created droplets as `root`, so `do_ssh_keys`
+must reference a DigitalOcean SSH key that is available for root login on the
+test droplets.
+
+Before running the playbooks, load the corresponding private key into your
+local SSH agent so Ansible can authenticate to the droplets:
+
+```text
+ssh-add ~/.ssh/<your-private-key>
+```
+
+If you use a different agent workflow, make sure the private key matching the
+selected DigitalOcean SSH key is available to `ssh` before starting the tests.
+
 To list the available SSH keys with `doctl`:
 
 ```text
@@ -137,10 +151,15 @@ ansible-playbook -i inventory playbook_cleanup.yml
 - The harness provisions real droplets and Reserved IPs, so it incurs cost.
 - The current harness only uses DigitalOcean credentials; no AWS credentials
   are required.
+- The harness connects to test droplets as `root`.
 - Test droplets are tagged with `ANSIBLE-TEST` for cleanup.
 - If a test run fails mid-flight, run the cleanup playbook before starting the
   next run.
+- If you get `Permission denied (publickey)` during droplet bootstrap, confirm
+  that the private key matching `do_ssh_keys` is loaded in your SSH agent.
 - If you get a `401 Unauthorized` error from the DigitalOcean API, verify that
   `do_test_api_token` is set in `tests/test_variables.yml`, or that
   `DIGITAL_OCEAN_API_TOKEN` / `DO_OAUTH_TOKEN` is exported in the same shell
   where you run `ansible-playbook`.
+- The harness now checks `/v2/account` before provisioning or cleanup, so an
+  invalid token should fail early with a clearer authentication message.

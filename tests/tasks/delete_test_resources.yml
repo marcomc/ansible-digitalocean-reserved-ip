@@ -6,15 +6,19 @@
     name: inviqa_digitalocean_reserved_ip
     tasks_from: list_reserved_ips
 
-- ansible.builtin.set_fact:
+- name: Collect Reserved IPs assigned to this test droplet
+  ansible.builtin.set_fact:
     do_reserved_ips_to_delete: "{{ do_reserved_ips_to_delete | default([]) + [item.ip] }}"
   loop: "{{ do_reserved_ips_json_response.json.floating_ips }}"
-  when: item.droplet.name == hostname
+  when:
+    - item.droplet is not none
+    - item.droplet.name == hostname
   delegate_to: localhost
   no_log: true
   failed_when: false
 
-- ansible.builtin.include_role:
+- name: Delete Reserved IPs associated with this test droplet
+  ansible.builtin.include_role:
     name: inviqa_digitalocean_reserved_ip
     tasks_from: delete_reserved_ip
   when: do_reserved_ips_to_delete is defined

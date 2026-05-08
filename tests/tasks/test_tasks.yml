@@ -8,11 +8,14 @@
   ansible.builtin.set_fact:
     do_reserved_ips_assigned_to_this_droplet: "{{ item.ip }}"
   loop: "{{ do_reserved_ips_json_response.json.floating_ips }}"
-  when: item.droplet.name == hostname
+  when:
+    - item.droplet is not none
+    - item.droplet.name == hostname
   delegate_to: localhost
   no_log: true
 
-- ansible.builtin.debug:
+- name: Report the Reserved IP assigned during the test
+  ansible.builtin.debug:
     var: do_reserved_ips_assigned_to_this_droplet
 
 - name: Check that the role exposed the Reserved IP fact

@@ -40,6 +40,8 @@
 - Added support for storing the DigitalOcean test token as `do_test_api_token`
   in the gitignored `tests/test_variables.yml`, and clarified that the current
   live test harness does not require AWS credentials.
+- Added a preflight DigitalOcean `/v2/account` authentication check so invalid
+  test tokens fail early with a clearer message before the role tasks run.
 
 ### Changed
 
@@ -51,3 +53,13 @@
   Python bootstrap tasks for current Debian, Ubuntu, and CentOS-family hosts.
 - Clarified in `tests/.gitignore` that `tests/test_variables.yml` is kept
   untracked to prevent accidental commits of local live-test overrides.
+- Hardened the live test cleanup and validation tasks so unattached Reserved IP
+  entries do not crash the test harness when scanning account-wide results.
+- Fixed the live test SSH defaults so the harness connects to fresh droplets as
+  `root` instead of inheriting the local workstation username.
+- Clarified in `tests/README.md` that the private key matching `do_ssh_keys`
+  must be loaded into the local SSH agent before running the live tests.
+- Fixed the remaining direct `ansible-lint` failures in the test playbooks,
+  test task files, and helper-role metadata.
+- Clarified in `AGENTS.md` that every created or modified Ansible file,
+  including files under `tests/`, must be validated with `ansible-lint`.
