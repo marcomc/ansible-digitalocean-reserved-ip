@@ -285,15 +285,11 @@
       changed_when: false
 
     - name: Persist the anchor gateway in the active NetworkManager connection
-      ansible.builtin.command:
-        argv:
-          - nmcli
-          - connection
-          - modify
-          - "{{ redhat_nm_connection.stdout | trim }}"
-          - ipv4.gateway
-          - "{{ anchor_gateway_associated_to_droplet }}"
-      changed_when: true
+      community.general.nmcli:
+        conn_name: "{{ redhat_nm_connection.stdout | trim }}"
+        ifname: "{{ reserved_ip_routing_interface }}"
+        gw4: "{{ anchor_gateway_associated_to_droplet }}"
+        state: present
       when: redhat_nm_gateway.stdout | trim != anchor_gateway_associated_to_droplet
       notify: Reboot RedHat host to apply Reserved IP routing
 

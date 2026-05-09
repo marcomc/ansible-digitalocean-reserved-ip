@@ -54,6 +54,8 @@ The role is intentionally narrow in scope:
 
 - Ansible Core $\ge 2.13$
 - a DigitalOcean API token with permission to manage droplets and Reserved IPs
+- `community.general` collection (used for RedHat-family NetworkManager
+  gateway persistence via `community.general.nmcli`)
 
 ## Installation
 

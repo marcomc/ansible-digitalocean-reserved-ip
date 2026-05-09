@@ -26,3 +26,6 @@ galaxy_info:
     - infrastructure
 
 dependencies: []
+
+collections:
+  - community.general

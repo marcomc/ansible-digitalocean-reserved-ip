@@ -57,6 +57,9 @@
   matches the assigned Reserved IP address.
 - Added per-host temporary `known_hosts` handling for the Reserved-IP SSH
   handoff so parallel live-test runs do not race on shared host-key state.
+- Added `community.general` as a role/test dependency so RedHat-family
+  NetworkManager gateway persistence can use the `community.general.nmcli`
+  module.
 
 ### Changed
 
@@ -82,3 +85,14 @@
   interface dynamically, applies immediate cutover only on Debian-family
   systems, and persists RedHat-family routing through the active
   NetworkManager connection instead of assuming legacy `ifcfg-eth0` files.
+- Replaced command-driven RedHat gateway persistence with
+  `community.general.nmcli` and replaced shell-driven netplan handler execution
+  with `ansible.builtin.command`.
+- Replaced shell-based outbound IP verification in tests with
+  `ansible.builtin.uri` while keeping the same Reserved-IP assertion logic.
+- Consolidated `tests/README.md`: merged the overlapping "One-time setup" and
+  "Recommended first run" sections into a single "Setup" section, added a
+  table of contents, and removed duplicated steps across sections.
+- Changed `tests/group_vars/all/main.yml` so that `DIGITAL_OCEAN_API_TOKEN` /
+  `DO_OAUTH_TOKEN` environment variables take precedence over `do_test_api_token`
+  in `tests/test_variables.yml`, making the env-var override behaviour explicit.
