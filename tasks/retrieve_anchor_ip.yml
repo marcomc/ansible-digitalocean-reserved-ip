@@ -69,8 +69,8 @@
   ansible.builtin.debug:
     msg:
       - "It was not possible to retrieve the anchor gateway metadata for this droplet."
-      - "The Reserved IP role no longer manages legacy NAT or route persistence tasks."
-      - "Route persistence should be handled separately through the future Netplan/systemd-networkd implementation."
+      - "The Reserved IP role cannot safely switch the default route without that metadata."
+      - "Persistent route configuration is skipped when the anchor gateway is unavailable."
   when: not can_retrieve_anchor_gateway_associated_to_this_droplet
 
 - name: Report that the role intentionally skips legacy NAT rules

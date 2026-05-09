@@ -4,6 +4,8 @@ digital_ocean_metadata_anchor_ipv4_url: "http://169.254.169.254/metadata/v1/inte
 digital_ocean_metadata_anchor_ipv4_gateway_url: "http://169.254.169.254/metadata/v1/interfaces/public/0/anchor_ipv4/gateway"
 digital_ocean_metadata_reserved_ip_active_url: "http://169.254.169.254/metadata/v1/reserved_ip/ipv4/active"
 digital_ocean_metadata_reserved_ip_address_url: "http://169.254.169.254/metadata/v1/reserved_ip/ipv4/ip_address"
+digital_ocean_metadata_public_ipv4_gateway_url: "http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/gateway"
 digital_ocean_api_token: "{{ enc_do_v2_api_key }}"
 digital_ocean_droplet_id: "{{ do.droplet.id | mandatory }}"
 digital_ocean_reserved_ip: ""
+enable_reserved_ip_outbound_routing: true

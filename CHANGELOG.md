@@ -42,6 +42,21 @@
   live test harness does not require AWS credentials.
 - Added a preflight DigitalOcean `/v2/account` authentication check so invalid
   test tokens fail early with a clearer message before the role tasks run.
+- Added outbound routing configuration via the anchor gateway, following the
+  official DigitalOcean Reserved IP documentation. Routing is applied
+  immediately via `ip route` commands and persisted via netplan (Debian/Ubuntu)
+  or NetworkManager plus reboot on CentOS-family hosts.
+- Added `enable_reserved_ip_outbound_routing` variable (default `true`) to
+  control whether the role configures outbound routing through the Reserved IP.
+- Added a pre-cutover SSH handoff so Ansible reconnects through the Reserved IP
+  before the default route changes on the droplet.
+- Added a netplan handler to support persistent Debian/Ubuntu routing
+  configuration.
+- Added outbound routing verification to the live test suite, querying the
+  droplet's public IP via `curl -4 https://icanhazip.com/` and asserting it
+  matches the assigned Reserved IP address.
+- Added per-host temporary `known_hosts` handling for the Reserved-IP SSH
+  handoff so parallel live-test runs do not race on shared host-key state.
 
 ### Changed
 
@@ -63,3 +78,7 @@
   test task files, and helper-role metadata.
 - Clarified in `AGENTS.md` that every created or modified Ansible file,
   including files under `tests/`, must be validated with `ansible-lint`.
+- Refined outbound Reserved IP routing so the role now detects the primary
+  interface dynamically, applies immediate cutover only on Debian-family
+  systems, and persists RedHat-family routing through the active
+  NetworkManager connection instead of assuming legacy `ifcfg-eth0` files.

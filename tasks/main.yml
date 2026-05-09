@@ -27,3 +27,9 @@
 
 - name: Retrieve post-assignment network metadata for live routing
   ansible.builtin.import_tasks: retrieve_anchor_ip.yml
+
+- name: Configure outbound routing via Reserved IP when enabled
+  ansible.builtin.import_tasks: setup_outbound_routing.yml
+  when:
+    - enable_reserved_ip_outbound_routing | bool
+    - reserved_ip_is_assigned_to_this_droplet

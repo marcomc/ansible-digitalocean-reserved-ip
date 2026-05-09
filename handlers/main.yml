@@ -1,0 +1,19 @@
+---
+
+- name: Apply netplan configuration
+  ansible.builtin.shell: |
+    set -e
+    netplan apply
+  args:
+    executable: /bin/bash
+  changed_when: false
+  listen: Apply netplan configuration
+
+- name: Reboot RedHat host to apply Reserved IP routing
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+    connect_timeout: 10
+    post_reboot_delay: 5
+    test_command: >-
+      ip -4 route show default | grep -F 'via {{ anchor_gateway_associated_to_droplet }}'
+  listen: Reboot RedHat host to apply Reserved IP routing

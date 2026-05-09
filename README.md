@@ -16,6 +16,7 @@ Reserved IP role for future publication on Ansible Galaxy.
 - [Installation](#installation)
 - [Variables](#variables)
 - [Exported facts](#exported-facts)
+- [Outbound routing](#outbound-routing)
 - [Examples](#examples)
 - [Development notes](#development-notes)
 - [Repository guidance](#repository-guidance)
@@ -37,6 +38,7 @@ The role is intentionally narrow in scope:
 - attaches an existing Reserved IP to a droplet, or creates one on the fly
 - exposes the assigned address as Ansible facts
 - retrieves the droplet anchor address and anchor gateway metadata
+- configures outbound routing through the Reserved IP via the anchor gateway (when enabled)
 - does not install legacy SMTP or general TCP `iptables` SNAT rules
 
 ## Current behavior notes
@@ -82,6 +84,8 @@ it may still be consumed from a local checkout during migration work.
 | `digital_ocean_droplet_id` | `{{ do.droplet.id \| mandatory }}` | Target droplet identifier. |
 | `digital_ocean_reserved_ip` | `""` | Preferred Reserved IP input. Leave empty to allocate one automatically. |
 | `digital_ocean_metadata_anchor_ipv4_gateway_url` | `http://169.254.169.254/metadata/v1/interfaces/public/0/anchor_ipv4/gateway` | Metadata endpoint used to discover the anchor gateway. |
+| `digital_ocean_metadata_public_ipv4_gateway_url` | `http://169.254.169.254/metadata/v1/interfaces/public/0/ipv4/gateway` | Metadata endpoint used to discover the original public gateway. |
+| `enable_reserved_ip_outbound_routing` | `true` | Configure outbound routing through the Reserved IP via the anchor gateway. |
 
 ## Exported facts
 
@@ -91,6 +95,68 @@ The role exposes these Reserved-IP facts for callers:
 - `reserved_ip_is_assigned_to_this_droplet`
 - `anchor_ip_associated_to_droplet`
 - `anchor_gateway_associated_to_droplet`
+
+## Outbound routing
+
+When `enable_reserved_ip_outbound_routing` is `true` (the default), the role
+configures the droplet to route all outbound traffic through the Reserved IP
+using the anchor gateway, following the
+[official DigitalOcean Reserved IP documentation](https://docs.digitalocean.com/networking/reserved-ips/#reserved-ips-and-outbound-traffic).
+
+The routing configuration is applied in two ways:
+
+### Immediate routing
+
+Before changing the default route, the role waits for SSH on the Reserved IP,
+switches Ansible's management address to that Reserved IP, and resets the SSH
+connection. To avoid host-key races during parallel runs, the handoff uses a
+per-host temporary `known_hosts` file on the control machine.
+
+On Debian and Ubuntu systems, the role then schedules the route change via
+`ip route` commands using the detected primary interface:
+
+```bash
+ip route del 0/0
+ip route add default via <anchor-gateway> dev <primary-interface>
+```
+
+This takes effect immediately on the target droplet while keeping the control
+connection aligned with the Reserved IP.
+
+On Red Hat-family systems, the role does not attempt the same in-band route
+cutover over SSH. Instead, it switches Ansible management to the Reserved IP
+first, persists the gateway through NetworkManager, and lets the reboot apply
+path complete the routing change safely.
+
+### Persistent routing
+
+The role also applies persistent routing configuration through the system's
+network configuration to ensure routing survives reboot:
+
+- **Debian/Ubuntu**: Updates `/etc/netplan/50-cloud-init.yaml` with routes
+  section pointing the default route for the detected primary interface to the
+  anchor gateway
+- **CentOS/RHEL**: Uses `nmcli` to update the active NetworkManager connection
+  for the detected primary interface with `ipv4.gateway=<anchor-gateway>` and
+  reboots when that persisted gateway changes, following the safer
+  CentOS/RHEL-compatible workflow validated in the live tests
+
+### Verification
+
+To verify that outbound routing is working correctly, query your droplet's
+outbound public IP:
+
+```bash
+curl -4 https://icanhazip.com/
+```
+
+The returned IP should match your Reserved IP address.
+
+### Disabling routing
+
+Set `enable_reserved_ip_outbound_routing: false` to skip routing configuration.
+The role will still allocate, attach, and expose the Reserved IP facts, but
+will not modify the droplet's routing table.
 
 ## Examples
 

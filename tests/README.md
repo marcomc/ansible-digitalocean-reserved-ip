@@ -146,6 +146,34 @@ Destroy the test droplets and their Reserved IPs:
 ansible-playbook -i inventory playbook_cleanup.yml
 ```
 
+## Outbound routing verification
+
+The test playbooks verify that outbound routing through the Reserved IP is
+working correctly by querying the droplet's outbound public IP using
+`curl -4 https://icanhazip.com/` and asserting that the returned IP matches
+the assigned Reserved IP address.
+
+During the SSH handoff, the role switches Ansible management to the Reserved IP
+before the route cutover and uses a per-host temporary `known_hosts` file on
+the control machine so parallel matrix runs do not race on shared host-key
+state.
+
+On CentOS-family test droplets, the role may reboot once after updating the
+active NetworkManager connection with `nmcli connection modify ...
+ipv4.gateway ...` so the persisted gateway change is applied cleanly.
+
+If routing verification fails:
+
+1. Check that the droplet has network connectivity
+2. Verify DNS resolution is working on the droplet
+3. Confirm that the anchor gateway metadata was retrieved correctly
+4. Check the droplet's routing table: `ip route show`
+5. On the droplet, manually test the reserved IP endpoint:
+   `curl -4 https://icanhazip.com/`
+
+To skip routing configuration (though the role enables it by default), add
+`enable_reserved_ip_outbound_routing: false` to the playbook variables.
+
 ## Notes
 
 - The harness provisions real droplets and Reserved IPs, so it incurs cost.
