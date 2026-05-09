@@ -33,29 +33,34 @@
   delegate_to: localhost
 
 - name: Verify outbound routing through Reserved IP
+  when:
+    - enable_reserved_ip_outbound_routing | bool
   block:
     - name: Query the droplet's outbound public IP address
-      ansible.builtin.shell: |
-        curl -4 --connect-timeout 10 --max-time 15 https://icanhazip.com/ 2>/dev/null
+      ansible.builtin.uri:
+        url: https://icanhazip.com/
+        method: GET
+        return_content: true
+        status_code: 200
+        timeout: 15
+        follow_redirects: all
       register: outbound_public_ip
       retries: 3
       delay: 5
-      until: outbound_public_ip.rc == 0
+      until: (outbound_public_ip.content | trim | length) > 0
 
     - name: Report the outbound public IP
       ansible.builtin.debug:
-        msg: "Outbound public IP: {{ outbound_public_ip.stdout | trim }}"
+        msg: "Outbound public IP: {{ outbound_public_ip.content | trim }}"
 
     - name: Assert that outbound IP matches the Reserved IP
       ansible.builtin.assert:
         that:
-          - (outbound_public_ip.stdout | trim) == (do_reserved_ips_assigned_to_this_droplet | trim)
+          - (outbound_public_ip.content | trim) == (do_reserved_ips_assigned_to_this_droplet | trim)
         msg: |
-          Outbound IP ({{ outbound_public_ip.stdout | trim }}) does not match Reserved IP
+          Outbound IP ({{ outbound_public_ip.content | trim }}) does not match Reserved IP
           ({{ do_reserved_ips_assigned_to_this_droplet | trim }}). Routing may not be configured correctly.
 
-  when:
-    - enable_reserved_ip_outbound_routing | bool
   rescue:
     - name: Report routing verification failure
       ansible.builtin.debug:
