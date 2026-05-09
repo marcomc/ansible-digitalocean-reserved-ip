@@ -5,65 +5,73 @@
     can_retrieve_anchor_ip_associated_to_this_droplet: false
     can_retrieve_anchor_gateway_associated_to_this_droplet: false
 
-- name: Retrieve the droplet anchor address
-  ansible.builtin.uri:
-    url: "{{ digital_ocean_metadata_anchor_ipv4_url }}"
-    body_format: raw
-    method: GET
-    follow_redirects: all
-    return_content: true
-    status_code:
-      - 200
-      - -1
-    timeout: 60
-  register: do_droplet_anchor_ip
-  when: reserved_ip_is_assigned_to_this_droplet
-  retries: 3
-  failed_when: false
+- name: Retrieve and store anchor IP address
+  block:
+    - name: Retrieve the droplet anchor address
+      ansible.builtin.uri:
+        url: "{{ digital_ocean_metadata_anchor_ipv4_url }}"
+        body_format: raw
+        method: GET
+        follow_redirects: all
+        return_content: true
+        status_code:
+          - 200
+          - -1
+        timeout: 60
+      register: do_droplet_anchor_ip
+      when: reserved_ip_is_assigned_to_this_droplet
+      retries: 3
+      failed_when: false
 
-- name: Mark anchor address retrieval as unavailable when metadata returns no address
-  ansible.builtin.set_fact:
-    can_retrieve_anchor_ip_associated_to_this_droplet: false
-  when:
-    - do_droplet_anchor_ip.content | length == 0 or do_droplet_anchor_ip.content == "not found"
+    - name: Handle anchor IP retrieval result
+      block:
+        - name: Mark anchor address retrieval as unavailable when metadata returns no address
+          ansible.builtin.set_fact:
+            can_retrieve_anchor_ip_associated_to_this_droplet: false
+          when:
+            - do_droplet_anchor_ip.content | length == 0 or do_droplet_anchor_ip.content == "not found"
 
-- name: Store the retrieved anchor address
-  ansible.builtin.set_fact:
-    can_retrieve_anchor_ip_associated_to_this_droplet: true
-    anchor_ip_associated_to_droplet: "{{ do_droplet_anchor_ip.content }}"
-  when:
-    - do_droplet_anchor_ip.content | length > 0
-    - do_droplet_anchor_ip.content != "not found"
+        - name: Store the retrieved anchor address
+          ansible.builtin.set_fact:
+            can_retrieve_anchor_ip_associated_to_this_droplet: true
+            anchor_ip_associated_to_droplet: "{{ do_droplet_anchor_ip.content }}"
+          when:
+            - do_droplet_anchor_ip.content | length > 0
+            - do_droplet_anchor_ip.content != "not found"
 
-- name: Retrieve the droplet anchor gateway
-  ansible.builtin.uri:
-    url: "{{ digital_ocean_metadata_anchor_ipv4_gateway_url }}"
-    body_format: raw
-    method: GET
-    follow_redirects: all
-    return_content: true
-    status_code:
-      - 200
-      - -1
-    timeout: 60
-  register: do_droplet_anchor_gateway
-  when: reserved_ip_is_assigned_to_this_droplet
-  retries: 3
-  failed_when: false
+- name: Retrieve and store anchor gateway
+  block:
+    - name: Retrieve the droplet anchor gateway
+      ansible.builtin.uri:
+        url: "{{ digital_ocean_metadata_anchor_ipv4_gateway_url }}"
+        body_format: raw
+        method: GET
+        follow_redirects: all
+        return_content: true
+        status_code:
+          - 200
+          - -1
+        timeout: 60
+      register: do_droplet_anchor_gateway
+      when: reserved_ip_is_assigned_to_this_droplet
+      retries: 3
+      failed_when: false
 
-- name: Mark anchor gateway retrieval as unavailable when metadata returns no gateway
-  ansible.builtin.set_fact:
-    can_retrieve_anchor_gateway_associated_to_this_droplet: false
-  when:
-    - do_droplet_anchor_gateway.content | length == 0 or do_droplet_anchor_gateway.content == "not found"
+    - name: Handle anchor gateway retrieval result
+      block:
+        - name: Mark anchor gateway retrieval as unavailable when metadata returns no gateway
+          ansible.builtin.set_fact:
+            can_retrieve_anchor_gateway_associated_to_this_droplet: false
+          when:
+            - do_droplet_anchor_gateway.content | length == 0 or do_droplet_anchor_gateway.content == "not found"
 
-- name: Store the retrieved anchor gateway
-  ansible.builtin.set_fact:
-    can_retrieve_anchor_gateway_associated_to_this_droplet: true
-    anchor_gateway_associated_to_droplet: "{{ do_droplet_anchor_gateway.content }}"
-  when:
-    - do_droplet_anchor_gateway.content | length > 0
-    - do_droplet_anchor_gateway.content != "not found"
+        - name: Store the retrieved anchor gateway
+          ansible.builtin.set_fact:
+            can_retrieve_anchor_gateway_associated_to_this_droplet: true
+            anchor_gateway_associated_to_droplet: "{{ do_droplet_anchor_gateway.content }}"
+          when:
+            - do_droplet_anchor_gateway.content | length > 0
+            - do_droplet_anchor_gateway.content != "not found"
 
 - name: Warn when the anchor gateway metadata cannot be retrieved
   ansible.builtin.debug:

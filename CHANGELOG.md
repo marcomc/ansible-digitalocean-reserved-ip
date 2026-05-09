@@ -28,6 +28,19 @@
   Jenkins instance.
 - Added a `tests/test_variables.example.yml` file and a collection-based
   `tests/requirements.yml` to make the live test harness easier to configure.
+
+### Changed
+
+- Refactored repeated `when` conditions in task files into named blocks to
+  reduce verbosity and improve maintainability:
+  - Consolidated SSH handoff preparation tasks in
+    `tasks/setup_outbound_routing.yml` under "Prepare Reserved IP for SSH
+    handoff when metadata available" block.
+  - Consolidated Debian-family routing tasks under "Implement Debian-family
+    immediate and persistent Reserved IP routing" block.
+  - Refactored anchor IP and gateway retrieval logic in
+    `tasks/retrieve_anchor_ip.yml` into named "Retrieve and store anchor IP
+    address" and "Retrieve and store anchor gateway" blocks.
 - Added compact maintainer, support, and repository-status sections to the
   README so publication and ownership details are easier to find.
 - Added the exact `doctl compute ssh-key list` commands to the test
