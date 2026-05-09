@@ -90,6 +90,9 @@
   with `ansible.builtin.command`.
 - Replaced shell-based outbound IP verification in tests with
   `ansible.builtin.uri` while keeping the same Reserved-IP assertion logic.
+- Added an explicit `wait_for_connection` stabilization step after
+  `reset_connection` so the Reserved-IP SSH handoff is less prone to transient
+  reconnect races during parallel matrix runs.
 - Consolidated `tests/README.md`: merged the overlapping "One-time setup" and
   "Recommended first run" sections into a single "Setup" section, added a
   table of contents, and removed duplicated steps across sections.

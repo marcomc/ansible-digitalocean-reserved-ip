@@ -137,6 +137,18 @@
     - do_droplet_reserved_ip_address is defined
     - do_droplet_reserved_ip_address | length > 0
 
+- name: Wait for the Reserved IP SSH connection to stabilize after reset
+  ansible.builtin.wait_for_connection:
+    delay: 2
+    sleep: 3
+    timeout: 120
+  when:
+    - can_retrieve_anchor_gateway_associated_to_this_droplet
+    - anchor_gateway_associated_to_droplet is defined
+    - anchor_gateway_associated_to_droplet | length > 0
+    - do_droplet_reserved_ip_address is defined
+    - do_droplet_reserved_ip_address | length > 0
+
 - name: Schedule immediate routing via the anchor gateway
   when:
     - can_retrieve_anchor_gateway_associated_to_this_droplet
@@ -287,7 +299,6 @@
     - name: Persist the anchor gateway in the active NetworkManager connection
       community.general.nmcli:
         conn_name: "{{ redhat_nm_connection.stdout | trim }}"
-        ifname: "{{ reserved_ip_routing_interface }}"
         gw4: "{{ anchor_gateway_associated_to_droplet }}"
         state: present
       when: redhat_nm_gateway.stdout | trim != anchor_gateway_associated_to_droplet
