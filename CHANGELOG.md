@@ -33,6 +33,8 @@
   tests, and always run cleanup.
 - Jenkins credential placeholders for the DigitalOcean API token, DigitalOcean
   SSH key IDs, live-test private key, and Slack notification token.
+- Jenkins live-test inventory selection restricted to the documented repository
+  inventories.
 - Failure-only Jenkins notifications to the `ops-integrations` Slack channel.
 - Local validation policy and helper documentation for Markdown, YAML,
   Ansible, and repository-maintenance checks.

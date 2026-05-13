@@ -73,10 +73,17 @@ The credential ID placeholders are defined at the top of `Jenkinsfile`:
 | Parameter | Default | Purpose |
 | --- | --- | --- |
 | `RUN_LIVE_TESTS` | `true` | Enables the live DigitalOcean integration test stage. |
-| `TEST_INVENTORY` | `tests/inventory` | Inventory used by the live test and cleanup playbooks. |
+| `TEST_INVENTORY` | `tests/inventory` | Inventory choice used by the live test and cleanup playbooks. |
 
 When `RUN_LIVE_TESTS` is enabled, all three Jenkins credentials above must
 exist.
+
+`TEST_INVENTORY` is restricted to these repository inventories:
+
+- `tests/inventory`
+- `tests/inventory-debian`
+- `tests/inventory-centos`
+- `tests/inventory-ubuntu`
 
 The pipeline sends failure notifications only. Successful builds do not post to
 Slack.

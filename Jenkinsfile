@@ -3,6 +3,12 @@ def DO_TOKEN_CREDENTIAL_ID = 'digitalocean-reserved-ip-oauth-token'
 def DO_SSH_KEYS_CREDENTIAL_ID = 'digitalocean-reserved-ip-ssh-key-ids'
 def SSH_PRIVATE_KEY_CREDENTIAL_ID = 'digitalocean-reserved-ip-test-ssh-private-key'
 def SLACK_TOKEN_CREDENTIAL_ID = 'inviqa-slack-integration-token'
+def TEST_INVENTORY_CHOICES = [
+    'tests/inventory',
+    'tests/inventory-debian',
+    'tests/inventory-centos',
+    'tests/inventory-ubuntu'
+]
 
 def runWithSshAgent(String command) {
     sshagent(credentials: [SSH_PRIVATE_KEY_CREDENTIAL_ID]) {
@@ -38,9 +44,9 @@ pipeline {
             defaultValue: true,
             description: 'Run the DigitalOcean live integration test matrix.'
         )
-        string(
+        choice(
             name: 'TEST_INVENTORY',
-            defaultValue: 'tests/inventory',
+            choices: TEST_INVENTORY_CHOICES,
             description: 'Inventory used for the live test and cleanup playbooks.'
         )
     }
@@ -75,6 +81,10 @@ pipeline {
             }
             steps {
                 script {
+                    if (!TEST_INVENTORY_CHOICES.contains(params.TEST_INVENTORY)) {
+                        error("Unsupported TEST_INVENTORY '${params.TEST_INVENTORY}'")
+                    }
+
                     withCredentials([
                         string(credentialsId: DO_TOKEN_CREDENTIAL_ID, variable: 'DIGITAL_OCEAN_API_TOKEN'),
                         string(credentialsId: DO_SSH_KEYS_CREDENTIAL_ID, variable: 'DO_SSH_KEYS')
