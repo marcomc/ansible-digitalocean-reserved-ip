@@ -14,10 +14,12 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ip_json_response
+  no_log: true
 
 - name: Initialize Reserved IP assignment facts
   ansible.builtin.set_fact:
     reserved_ip_is_assigned: "{{ do_reserved_ip_json_response.json.reserved_ip.droplet is not none }}"
+    do_droplet_reserved_ip_address: "{{ do_reserved_ip_json_response.json.reserved_ip.ip }}"
     droplet_id_associated_to_reserved_ip: ""
     reserved_ip_is_assigned_to_this_droplet: false
     can_retrieve_anchor_ip_associated_to_this_droplet: false
@@ -51,6 +53,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ip_unassign_action_json_response
+  no_log: true
   when: reserved_ip_is_assigned and not reserved_ip_is_assigned_to_this_droplet
 
 - name: Give DigitalOcean time to process the unassign request
@@ -76,6 +79,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ip_assign_action_json_response
+  no_log: true
   when: not reserved_ip_is_assigned_to_this_droplet
 
 - name: Mark the Reserved IP as attached after assignment

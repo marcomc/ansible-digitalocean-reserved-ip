@@ -1,7 +1,7 @@
 ---
 # Deleting Test Reserved IP
 
-- name: Retrive the list of existing Reserved IPs
+- name: Retrieve the list of existing Reserved IPs
   ansible.builtin.import_role:
     name: inviqa_digitalocean_reserved_ip
     tasks_from: list_reserved_ips
@@ -35,6 +35,7 @@
     tag_name: "{{ do_test_tag }}"
   delegate_to: localhost
   register: do_droplets_with_test_tag
+  no_log: true
   run_once: true
 
 - name: Retrieve IDs assigned to matching test droplets
@@ -63,4 +64,5 @@
     timeout: 60
   delegate_to: localhost
   register: do_test_droplet_delete
+  no_log: true
   loop: "{{ droplets_with_test_tag | default([]) }}"

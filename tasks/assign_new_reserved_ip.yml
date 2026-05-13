@@ -25,6 +25,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ip_create_new_json_response
+  no_log: true
   when: not reserved_ip_is_already_assigned_to_this_droplet
 
 - name: Store the newly allocated Reserved IP facts

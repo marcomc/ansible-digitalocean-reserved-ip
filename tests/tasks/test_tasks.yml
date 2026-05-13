@@ -1,5 +1,5 @@
 ---
-- name: Retrive the list of existing Reserved IPs
+- name: Retrieve the list of existing Reserved IPs
   ansible.builtin.import_role:
     name: inviqa_digitalocean_reserved_ip
     tasks_from: list_reserved_ips

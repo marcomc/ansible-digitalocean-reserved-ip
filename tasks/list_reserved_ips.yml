@@ -14,4 +14,5 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ips_json_response
+  no_log: true
   run_once: true

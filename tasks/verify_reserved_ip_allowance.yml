@@ -12,6 +12,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_account_json_response
+  no_log: true
   run_once: true
 
 - name: Store the Reserved IP allowance for the account
@@ -32,6 +33,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_reserved_ips_json_response
+  no_log: true
 
 - name: Store the number of Reserved IPs already in use
   ansible.builtin.set_fact:

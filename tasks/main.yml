@@ -16,6 +16,7 @@
     timeout: 60
   delegate_to: localhost
   register: do_droplet_check_json_response
+  no_log: true
 
 - name: Allocate a Reserved IP when none was provided
   ansible.builtin.import_tasks: assign_new_reserved_ip.yml
