@@ -69,3 +69,7 @@
           - "1. Network connectivity issues on the droplet"
           - "2. The routing configuration was not applied correctly"
           - "3. DNS resolution issues"
+
+    - name: Fail when outbound routing verification fails
+      ansible.builtin.fail:
+        msg: "Outbound routing verification failed for the Reserved IP test droplet."

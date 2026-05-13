@@ -108,6 +108,15 @@ Required:
 13. When renaming externally created live-test resources, keep cleanup tasks
     compatible with the previous names long enough to remove resources left by
     interrupted older runs.
+14. When adding cloud quota or allowance preflight checks, run current-resource
+    discovery first and gate only the creation path so idempotent re-runs do
+    not fail when the account is already at quota.
+15. Test rescue blocks must re-raise or fail after logging unless the recovered
+    state is intentionally acceptable and documented in the task.
+16. When parsing provider metadata booleans, compare normalized expected values
+    instead of relying on broad truthiness filters for arbitrary strings.
+17. When editing network configuration, replace only the route or setting owned
+    by this role and preserve unrelated existing entries.
 
 ## Changelog Policy (Always Required)
 

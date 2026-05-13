@@ -33,7 +33,7 @@
 - name: Mark the Reserved IP as already attached to this droplet
   ansible.builtin.set_fact:
     reserved_ip_is_assigned_to_this_droplet: true
-  when: droplet_id_associated_to_reserved_ip == digital_ocean_droplet_id
+  when: droplet_id_associated_to_reserved_ip | string == digital_ocean_droplet_id | string
 
 - name: Unassign the Reserved IP from any other droplet
   ansible.builtin.uri:

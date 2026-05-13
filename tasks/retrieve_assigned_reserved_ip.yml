@@ -17,8 +17,10 @@
 
 - name: Store whether Reserved IP metadata reports an assigned address
   ansible.builtin.set_fact:
-    reserved_ip_is_already_assigned_to_this_droplet: "{{ do_reserved_ip_is_already_assigned_to_this_droplet.content | bool }}"
-    reserved_ip_is_assigned_to_this_droplet: "{{ do_reserved_ip_is_already_assigned_to_this_droplet.content | bool }}"
+    reserved_ip_is_already_assigned_to_this_droplet: >-
+      {{ do_reserved_ip_is_already_assigned_to_this_droplet.content | trim | lower == 'true' }}
+    reserved_ip_is_assigned_to_this_droplet: >-
+      {{ do_reserved_ip_is_already_assigned_to_this_droplet.content | trim | lower == 'true' }}
 
 - name: Retrieve the Reserved IP assigned to the droplet
   ansible.builtin.uri:

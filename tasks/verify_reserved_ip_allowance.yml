@@ -17,7 +17,7 @@
 
 - name: Store the Reserved IP allowance for the account
   ansible.builtin.set_fact:
-    do_account_reserved_ip_limit: "{{ do_account_json_response.json.account.floating_ip_limit }}"
+    do_account_reserved_ip_limit: "{{ do_account_json_response.json.account.floating_ip_limit | int }}"
   run_once: true
 
 - name: Retrieve the number of Reserved IPs already in use
@@ -37,9 +37,9 @@
 
 - name: Store the number of Reserved IPs already in use
   ansible.builtin.set_fact:
-    do_account_reserved_ip_used: "{{ do_reserved_ips_json_response.json.meta.total }}"
+    do_account_reserved_ip_used: "{{ do_reserved_ips_json_response.json.meta.total | int }}"
 
 - name: Fail when the account Reserved IP allowance is exhausted
   ansible.builtin.fail:
     msg: "You have reached the limit of your Reserved IP allowance using {{ do_account_reserved_ip_used }} out of {{ do_account_reserved_ip_limit }}"
-  when: do_account_reserved_ip_used == do_account_reserved_ip_limit
+  when: do_account_reserved_ip_used >= do_account_reserved_ip_limit

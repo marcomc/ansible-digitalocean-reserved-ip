@@ -15,6 +15,15 @@
   retries: 3
   failed_when: false
 
+- name: Ensure required host facts are available for Reserved IP routing
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['os_family'] is defined
+    fail_msg: >-
+      Reserved IP outbound routing requires gathered host facts. Enable fact
+      gathering for the play or set enable_reserved_ip_outbound_routing to
+      false.
+
 - name: Store the original public gateway
   ansible.builtin.set_fact:
     original_public_gateway: "{{ do_droplet_public_gateway.content }}"
@@ -128,8 +137,7 @@
       ansible.builtin.shell: |
         nohup /bin/bash -c '
           sleep 2
-          ip route del 0/0 || true
-          ip route add default via {{ anchor_gateway_associated_to_droplet }} dev {{ reserved_ip_routing_interface }}
+          ip route replace default via {{ anchor_gateway_associated_to_droplet }} dev {{ reserved_ip_routing_interface }}
         ' >/var/tmp/reserved-ip-route-switch.log 2>&1 </dev/null &
       args:
         executable: /bin/bash
@@ -181,6 +189,30 @@
               )
           }}
 
+    - name: Preserve existing non-default netplan routes
+      ansible.builtin.set_fact:
+        reserved_ip_preserved_netplan_routes: >-
+          {{
+            netplan_config['network']['ethernets'][reserved_ip_routing_interface]['routes']
+            | default([])
+            | rejectattr('to', 'equalto', '0.0.0.0/0')
+            | rejectattr('to', 'equalto', 'default')
+            | list
+          }}
+
+    - name: Build netplan routes for Reserved IP routing
+      ansible.builtin.set_fact:
+        reserved_ip_netplan_routes: >-
+          {{
+            reserved_ip_preserved_netplan_routes
+            + reserved_ip_default_route_entry
+          }}
+      vars:
+        reserved_ip_default_route_entry:
+          - to: '0.0.0.0/0'
+            via: "{{ anchor_gateway_associated_to_droplet }}"
+            on-link: true
+
     - name: Configure the primary interface with routes to anchor gateway
       ansible.builtin.set_fact:
         netplan_config: >-
@@ -191,7 +223,7 @@
                   'network': {
                     'ethernets': {
                       reserved_ip_routing_interface: {
-                        'routes': route_entry
+                        'routes': reserved_ip_netplan_routes
                       }
                     }
                   }
@@ -199,11 +231,6 @@
                 recursive=True
               )
           }}
-      vars:
-        route_entry:
-          - to: '0.0.0.0/0'
-            via: "{{ anchor_gateway_associated_to_droplet }}"
-            on-link: true
 
     - name: Write updated netplan configuration
       ansible.builtin.copy:
@@ -268,3 +295,7 @@
       - "Current Ansible management address: {{ do_droplet_reserved_ip_address | default(ansible_host | default('unknown')) }}"
       - "Anchor gateway: {{ anchor_gateway_associated_to_droplet }}"
       - "Original public gateway: {{ original_public_gateway | default('unknown') }}"
+  when:
+    - can_retrieve_anchor_gateway_associated_to_this_droplet
+    - anchor_gateway_associated_to_droplet is defined
+    - anchor_gateway_associated_to_droplet | length > 0

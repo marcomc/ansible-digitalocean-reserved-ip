@@ -32,7 +32,8 @@ The role is intentionally narrow in scope:
 
 - manage a Reserved IP for an existing droplet
 - expose the reserved-address and anchor-routing metadata needed by callers
-- avoid legacy host-level NAT or route-persistence behavior inside the role
+- avoid legacy host-level NAT while keeping Reserved IP default-route
+  persistence explicit and opt-out
 
 ## What it does
 
@@ -57,6 +58,7 @@ The role is intentionally narrow in scope:
 - a DigitalOcean API token with permission to manage droplets and Reserved IPs
 - `community.general` collection (used for RedHat-family NetworkManager
   gateway persistence via `community.general.nmcli`)
+- gathered host facts when `enable_reserved_ip_outbound_routing` is enabled
 
 ## Installation
 
@@ -176,7 +178,7 @@ will not modify the droplet's routing table.
       vars:
         digital_ocean_api_token: "{{ lookup('env', 'DO_OAUTH_TOKEN') }}"
         digital_ocean_droplet_id: "{{ digitalocean_droplet.id }}"
-        digital_ocean_reserved_ip: "139.59.203.219"
+        digital_ocean_reserved_ip: "203.0.113.10"
 
 - name: Allocate a Reserved IP on the fly
   hosts: digitalocean_droplets
@@ -220,7 +222,7 @@ If you install the published role under its current namespace, replace
 
 ## Maintainer
 
-- Maintainer: Marco Massari Calderone `<marco.massari-calder@inviqa.com.>`
+- Maintainer: Marco Massari Calderone `<marco.massari-calder@inviqa.com>`
 - Copyright holder: Inviqa UK Ltd
 
 ## Support
@@ -231,8 +233,8 @@ If you install the published role under its current namespace, replace
 
 ## Repository
 
-- Public repository URL: not configured yet
-- Publication status: pending Ansible Galaxy and/or public Git publication
+- Repository URL: <https://github.com/marcomc/ansible-digitalocean-reserved-ip>
+- Publication status: pending Ansible Galaxy publication
 
 ## License
 
