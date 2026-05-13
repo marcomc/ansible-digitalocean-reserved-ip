@@ -27,7 +27,7 @@ Single-family inventories use the same image slugs: `inventory-debian`,
 
 ## Setup
 
-Install the required Ansible collection from the repository root:
+Install the required Ansible collections from the repository root:
 
 ```text
 ansible-galaxy collection install -r tests/requirements.yml
@@ -59,8 +59,9 @@ Load the matching private key into your SSH agent before running the playbooks:
 ssh-add ~/.ssh/<your-private-key>
 ```
 
-The harness connects to newly created droplets as `root`, so `do_ssh_keys` must
-reference a DigitalOcean SSH key whose private key is available for root login.
+The harness creates droplets with the `digitalocean.cloud` collection and
+connects to them as `root`, so `do_ssh_keys` must reference a DigitalOcean SSH
+key whose private key is available for root login.
 
 > **Note:** If `DIGITAL_OCEAN_API_TOKEN` or `DO_OAUTH_TOKEN` is exported in the
 > current shell, it takes precedence over `do_test_api_token` in

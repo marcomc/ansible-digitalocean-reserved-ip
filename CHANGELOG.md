@@ -74,13 +74,11 @@
   NetworkManager gateway persistence can use the `community.general.nmcli`
   module.
 
-### Changed
-
 - Removed the stale Travis-era ignored key files from `.gitignore`.
 - Updated the live test inventories to current DigitalOcean images for Debian
   13, Ubuntu 24.04 LTS, and CentOS Stream 10.
-- Switched the test helper role to the supported
-  `community.digitalocean.digital_ocean_droplet` module and refreshed the
+- Switched the test helper role to the supported `digitalocean.cloud.droplet`
+  module and refreshed the
   Python bootstrap tasks for current Debian, Ubuntu, and CentOS-family hosts.
 - Clarified in `tests/.gitignore` that `tests/test_variables.yml` is kept
   untracked to prevent accidental commits of local live-test overrides.
@@ -112,3 +110,7 @@
 - Changed `tests/group_vars/all/main.yml` so that `DIGITAL_OCEAN_API_TOKEN` /
   `DO_OAUTH_TOKEN` environment variables take precedence over `do_test_api_token`
   in `tests/test_variables.yml`, making the env-var override behaviour explicit.
+- Switched the live test harness from `community.digitalocean` to the
+  maintained `digitalocean.cloud` collection for test droplet creation and
+  cleanup, and pinned the test collection versions to match the Frontdoor base
+  project dependency model.

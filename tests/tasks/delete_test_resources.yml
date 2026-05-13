@@ -29,44 +29,29 @@
     seconds: 10
 
 # Deleting Test Droplets
-- name: Retrive The List Of Droplets With Test Tag
-  ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/droplets?tag_name={{ do_test_tag }}"
-    headers:
-      Content-Type: 'application/json'
-      Authorization: "Bearer {{ digital_ocean_api_token }}"
-    body_format: json
-    method: GET
-    status_code:
-      - 200
-    follow_redirects: all
-    return_content: true
-    timeout: 60
+- name: Retrieve the list of droplets with the test tag
+  digitalocean.cloud.droplets_info:
+    token: "{{ digital_ocean_api_token }}"
+    tag_name: "{{ do_test_tag }}"
   delegate_to: localhost
-  register: do_droplets_with_test_tag_json_response
+  register: do_droplets_with_test_tag
   run_once: true
 
-- name: Retrive the ID assigned to the Test Droplet
+- name: Retrieve the ID assigned to the test droplet
   ansible.builtin.set_fact:
     droplet_id_with_test_tag: "{{ item.id }}"
-  loop: "{{ do_droplets_with_test_tag_json_response.json.droplets }}"
+  loop: "{{ do_droplets_with_test_tag.droplets }}"
   when: item.name == hostname
   delegate_to: localhost
   no_log: true
 
-- name: Delete the Test Droplet
-  ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/droplets/{{ droplet_id_with_test_tag }}"
-    headers:
-      Content-Type: 'application/json'
-      Authorization: "Bearer {{ digital_ocean_api_token }}"
-    body_format: json
-    method: DELETE
-    follow_redirects: all
-    return_content: true
-    status_code:
-      - 204
+- name: Delete the test droplet
+  digitalocean.cloud.droplet:
+    token: "{{ digital_ocean_api_token }}"
+    droplet_id: "{{ droplet_id_with_test_tag }}"
+    name: "{{ hostname }}"
+    state: absent
     timeout: 60
   delegate_to: localhost
-  register: do_test_droplet_delete_json_response
+  register: do_test_droplet_delete
   when: droplet_id_with_test_tag is defined
