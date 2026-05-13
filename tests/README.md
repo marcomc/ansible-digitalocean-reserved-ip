@@ -132,6 +132,8 @@ To skip routing configuration, add
 - The harness connects to test droplets as `root`.
 - Test droplets are named `ansible-digitalocean-reserved-ip-<inventory-name>`
   and tagged with `ANSIBLE-TEST` for cleanup.
+- Cleanup also recognises the previous `<inventory-name>-test-with-ansible`
+  droplet names so interrupted older test runs can be removed.
 - If a test run fails mid-flight, run the cleanup playbook before starting the
   next run.
 - If you get `Permission denied (publickey)`, confirm the private key matching

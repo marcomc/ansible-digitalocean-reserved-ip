@@ -12,7 +12,7 @@
   loop: "{{ do_reserved_ips_json_response.json.reserved_ips }}"
   when:
     - item.droplet is not none
-    - item.droplet.name == hostname
+    - item.droplet.name in do_test_resource_names | default([hostname])
   delegate_to: localhost
   no_log: true
   failed_when: false
@@ -37,22 +37,30 @@
   register: do_droplets_with_test_tag
   run_once: true
 
-- name: Retrieve the ID assigned to the test droplet
+- name: Retrieve IDs assigned to matching test droplets
   ansible.builtin.set_fact:
-    droplet_id_with_test_tag: "{{ item.id }}"
+    droplets_with_test_tag: >-
+      {{
+        droplets_with_test_tag | default([])
+        + [{
+          'id': item.id,
+          'name': item.name,
+          'region': item.region.slug | default(do_region_id | default('lon1')),
+        }]
+      }}
   loop: "{{ do_droplets_with_test_tag.droplets }}"
-  when: item.name == hostname
+  when: item.name in do_test_resource_names | default([hostname])
   delegate_to: localhost
   no_log: true
 
-- name: Delete the test droplet
+- name: Delete matching test droplets
   digitalocean.cloud.droplet:
     token: "{{ digital_ocean_api_token }}"
-    droplet_id: "{{ droplet_id_with_test_tag }}"
-    name: "{{ hostname }}"
-    region: "{{ do_region_id | default('lon1') }}"
+    droplet_id: "{{ item.id }}"
+    name: "{{ item.name }}"
+    region: "{{ item.region }}"
     state: absent
     timeout: 60
   delegate_to: localhost
   register: do_test_droplet_delete
-  when: droplet_id_with_test_tag is defined
+  loop: "{{ droplets_with_test_tag | default([]) }}"

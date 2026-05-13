@@ -117,3 +117,6 @@
   required by `digitalocean.cloud.droplet` deletion.
 - Renamed live test droplets to use the
   `ansible-digitalocean-reserved-ip-<inventory-name>` pattern.
+- Kept cleanup compatible with the previous
+  `<inventory-name>-test-with-ansible` droplet names so interrupted older runs
+  can still be removed.

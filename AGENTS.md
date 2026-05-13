@@ -105,6 +105,9 @@ Required:
 12. Do not hand-edit generated or vendored content under `.ansible/`; update the
     role source files in the repository root and regenerate or reinstall test
     dependencies when needed.
+13. When renaming externally created live-test resources, keep cleanup tasks
+    compatible with the previous names long enough to remove resources left by
+    interrupted older runs.
 
 ## Changelog Policy (Always Required)
 
