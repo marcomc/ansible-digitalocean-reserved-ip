@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: "Marco Massari Calderone <marco@marcomc.com>"
+  author: "Marco Massari Calderone <marco.massari-calder@inviqa.com>"
   namespace: "inviqa"
   role_name: "digitalocean_reserved_ip"
   description: "Manage a DigitalOcean Reserved IP for an existing droplet"

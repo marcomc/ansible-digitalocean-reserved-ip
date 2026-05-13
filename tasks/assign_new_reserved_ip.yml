@@ -7,7 +7,7 @@
 
 - name: Create a new Reserved IP associated with the droplet
   ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/floating_ips/"
+    url: "{{ digital_ocean_api_base_url }}/reserved_ips"
     headers:
       Content-Type: 'application/json'
       Authorization: "Bearer {{ digital_ocean_api_token }}"
@@ -29,7 +29,7 @@
 
 - name: Store the newly allocated Reserved IP facts
   ansible.builtin.set_fact:
-    do_droplet_reserved_ip_address: "{{ do_reserved_ip_create_new_json_response.json.floating_ip.ip }}"
+    do_droplet_reserved_ip_address: "{{ do_reserved_ip_create_new_json_response.json.reserved_ip.ip }}"
   when: not reserved_ip_is_already_assigned_to_this_droplet and do_reserved_ip_create_new_json_response.status != 422
 
 - name: Report the newly assigned Reserved IP

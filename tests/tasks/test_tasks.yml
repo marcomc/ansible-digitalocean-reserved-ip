@@ -7,7 +7,7 @@
 - name: Store the Reserved IP assigned to this droplet
   ansible.builtin.set_fact:
     do_reserved_ips_assigned_to_this_droplet: "{{ item.ip }}"
-  loop: "{{ do_reserved_ips_json_response.json.floating_ips }}"
+  loop: "{{ do_reserved_ips_json_response.json.reserved_ips }}"
   when:
     - item.droplet is not none
     - item.droplet.name == hostname

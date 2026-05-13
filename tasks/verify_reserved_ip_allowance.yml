@@ -21,7 +21,7 @@
 
 - name: Retrieve the number of Reserved IPs already in use
   ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/floating_ips?page=1&per_page=20"
+    url: "{{ digital_ocean_api_base_url }}/reserved_ips?page=1&per_page=20"
     headers:
       Content-Type: 'application/json'
       Authorization: "Bearer {{ digital_ocean_api_token }}"

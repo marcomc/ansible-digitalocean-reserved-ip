@@ -45,8 +45,8 @@ The role is intentionally narrow in scope:
 
 - Preferred terminology in this repo is **Reserved IP**.
 - This role uses Reserved-IP-only variable names and exported facts.
-- DigitalOcean still exposes the underlying API through `/floating_ips` REST
-  endpoints; that API naming is preserved where required by the platform.
+- DigitalOcean exposes the current Reserved IP API through `/reserved_ips`
+  REST endpoints and `reserved_ip` / `reserved_ips` response fields.
 - The role assumes outbound traffic should follow the default route via the
   anchor gateway rather than host-level SNAT rules.
 
@@ -212,7 +212,7 @@ If you install the published role under its current namespace, replace
 
 ## Maintainer
 
-- Maintainer: Marco Massari Calderone `<marco@marcomc.com>`
+- Maintainer: Marco Massari Calderone `<marco.massari-calder@inviqa.com.>`
 - Copyright holder: Inviqa UK Ltd
 
 ## Support

@@ -1,7 +1,7 @@
 ---
 - name: Check if the requested Reserved IP exists
   ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}"
+    url: "{{ digital_ocean_api_base_url }}/reserved_ips/{{ digital_ocean_effective_reserved_ip }}"
     headers:
       Content-Type: 'application/json'
       Authorization: "Bearer {{ digital_ocean_api_token }}"
@@ -17,7 +17,7 @@
 
 - name: Initialize Reserved IP assignment facts
   ansible.builtin.set_fact:
-    reserved_ip_is_assigned: "{{ do_reserved_ip_json_response.json.floating_ip.droplet is not none }}"
+    reserved_ip_is_assigned: "{{ do_reserved_ip_json_response.json.reserved_ip.droplet is not none }}"
     droplet_id_associated_to_reserved_ip: ""
     reserved_ip_is_assigned_to_this_droplet: false
     can_retrieve_anchor_ip_associated_to_this_droplet: false
@@ -25,7 +25,7 @@
 
 - name: Store the droplet currently associated with the Reserved IP
   ansible.builtin.set_fact:
-    droplet_id_associated_to_reserved_ip: "{{ do_reserved_ip_json_response.json.floating_ip.droplet.id }}"
+    droplet_id_associated_to_reserved_ip: "{{ do_reserved_ip_json_response.json.reserved_ip.droplet.id }}"
   when: reserved_ip_is_assigned
 
 - name: Mark the Reserved IP as already attached to this droplet
@@ -35,7 +35,7 @@
 
 - name: Unassign the Reserved IP from any other droplet
   ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
+    url: "{{ digital_ocean_api_base_url }}/reserved_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
     headers:
       Content-Type: 'application/json'
       Authorization: "Bearer {{ digital_ocean_api_token }}"
@@ -59,7 +59,7 @@
 
 - name: Assign the Reserved IP to the requested droplet
   ansible.builtin.uri:
-    url: "{{ digital_ocean_api_base_url }}/floating_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
+    url: "{{ digital_ocean_api_base_url }}/reserved_ips/{{ digital_ocean_effective_reserved_ip }}/actions"
     headers:
       Content-Type: 'application/json'
       Authorization: "Bearer {{ digital_ocean_api_token }}"
