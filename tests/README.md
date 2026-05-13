@@ -130,7 +130,8 @@ To skip routing configuration, add
 - The harness provisions real droplets and Reserved IPs, so it incurs cost.
 - No AWS credentials are required; only DigitalOcean credentials are used.
 - The harness connects to test droplets as `root`.
-- Test droplets are tagged with `ANSIBLE-TEST` for cleanup.
+- Test droplets are named `ansible-digitalocean-reserved-ip-<inventory-name>`
+  and tagged with `ANSIBLE-TEST` for cleanup.
 - If a test run fails mid-flight, run the cleanup playbook before starting the
   next run.
 - If you get `Permission denied (publickey)`, confirm the private key matching

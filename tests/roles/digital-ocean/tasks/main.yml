@@ -22,8 +22,7 @@
     tags:
       - "{{ do_test_tag }}"
     unique_name: "{{ digital_ocean_unique_name | bool }}"
-    wait: true
-    wait_timeout: 600
+    timeout: 600
   delegate_to: localhost
   register: do_create
 

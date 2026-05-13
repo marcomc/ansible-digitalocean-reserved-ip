@@ -7,5 +7,5 @@ do_test_api_token_from_env: >-
     | default(lookup('env', 'DO_OAUTH_TOKEN'), true)
   }}
 enc_do_v2_api_key: "{{ do_test_api_token_from_env | default(do_test_api_token, true) }}"
-hostname: "{{ inventory_hostname }}-test-with-ansible"
+hostname: "ansible-digitalocean-reserved-ip-{{ inventory_hostname }}"
 do_test_tag: "ANSIBLE-TEST"

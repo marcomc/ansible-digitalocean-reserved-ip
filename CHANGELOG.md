@@ -113,4 +113,7 @@
 - Switched the live test harness from `community.digitalocean` to the
   maintained `digitalocean.cloud` collection for test droplet creation and
   cleanup, and pinned the test collection versions to match the Frontdoor base
-  project dependency model.
+  project dependency model. The cleanup path now passes the droplet region
+  required by `digitalocean.cloud.droplet` deletion.
+- Renamed live test droplets to use the
+  `ansible-digitalocean-reserved-ip-<inventory-name>` pattern.

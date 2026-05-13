@@ -50,6 +50,7 @@
     token: "{{ digital_ocean_api_token }}"
     droplet_id: "{{ droplet_id_with_test_tag }}"
     name: "{{ hostname }}"
+    region: "{{ do_region_id | default('lon1') }}"
     state: absent
     timeout: 60
   delegate_to: localhost

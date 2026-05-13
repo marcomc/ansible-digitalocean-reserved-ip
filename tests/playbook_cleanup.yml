@@ -8,7 +8,7 @@
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
     ansible_connection: local
-    hostname: "{{ inventory_hostname }}-test-with-ansible"
+    hostname: "ansible-digitalocean-reserved-ip-{{ inventory_hostname }}"
     do_test_tag: "ANSIBLE-TEST"
   pre_tasks:
     - name: Check whether local test overrides exist
