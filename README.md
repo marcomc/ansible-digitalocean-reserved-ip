@@ -19,6 +19,7 @@ Reserved IP role for future publication on Ansible Galaxy.
 - [Outbound routing](#outbound-routing)
 - [Examples](#examples)
 - [Development notes](#development-notes)
+- [Continuous integration](#continuous-integration)
 - [Repository guidance](#repository-guidance)
 - [Maintainer](#maintainer)
 - [Support](#support)
@@ -202,6 +203,13 @@ If you install the published role under its current namespace, replace
   execution, and cleanup.
 - The repo is being prepared for Galaxy publication, so the metadata and
   documentation are intentionally kept explicit.
+
+## Continuous integration
+
+- `Jenkinsfile` defines the private Jenkins CI entrypoint for this role.
+- `docs/jenkins-ci.md` documents the Jenkins parameters, required credentials,
+  shared Ansible Docker agent, validation stages, live DigitalOcean test stage, and
+  cleanup behavior.
 
 ## Repository guidance
 

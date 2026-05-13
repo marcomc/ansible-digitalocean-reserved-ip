@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.1.0] - 2026-05-13 First release
 
 ### Added
 
@@ -28,6 +28,16 @@
   Jenkins instance.
 - Added a `tests/test_variables.example.yml` file and a collection-based
   `tests/requirements.yml` to make the live test harness easier to configure.
+- Added a Jenkins pipeline for containerized Ansible dependency installation,
+  syntax checks, live DigitalOcean tests, and cleanup.
+- Added dedicated Jenkins CI integration documentation.
+- Added a Jenkins pipeline based on the shared Inviqa Ansible Docker image for
+  Jenkins and local CI-equivalent runs.
+- Added a project Markdown lint configuration for local documentation checks
+  without making Markdown linting part of Jenkins CI.
+- Documented the Jenkins credential placeholders for the DigitalOcean API
+  token, DigitalOcean SSH key IDs, and live-test private key.
+- Added Jenkins failure notifications to the `ops-integrations` Slack channel.
 
 ### Changed
 
@@ -120,3 +130,5 @@
 - Kept cleanup compatible with the previous
   `<inventory-name>-test-with-ansible` droplet names so interrupted older runs
   can still be removed.
+- Updated the README to point maintainers at the Jenkins CI entrypoint,
+  shared Ansible Docker workflow, and integration guide.
